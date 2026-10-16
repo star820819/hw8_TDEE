@@ -20,7 +20,6 @@ class TDEEViewController: UIViewController {
     ]
     var isLoseWeight = Bool()
     var exerciseDay = Int()
-    var isLabor = Bool()
 
     
     @IBOutlet weak var loseWeightLabel: UILabel!
@@ -40,12 +39,12 @@ class TDEEViewController: UIViewController {
         
         bmrLabel.text = "BMR = \(bmrText)"
         isLaborSwitch.isOn = false
-        updateTDEE(tdee: tdeeInfo[0])
+        showTDEE(tdee: tdeeInfo[0])
     }
     
     @IBAction func selectionsChanged(_ sender: Any) {
-        // 每次選項更改，就重新確認選項
-        checkSelections()
+        // 每次選項更改，就重新確認選項，再顯示相對應的 TDEEInfo
+        updateTDEEUI()
     }
     
     @IBAction func exerciseDaySliderChanged(_ sender: UISlider) {
@@ -55,7 +54,7 @@ class TDEEViewController: UIViewController {
         exerciseDayLabel.text = Int(sender.value).description + "天"
     }
     
-    func checkSelections() {
+    func updateTDEEUI() {
         // 判斷是否要減重
         if loseWeightSegmentedControl.selectedSegmentIndex == 0 {
             isLoseWeight = false
@@ -64,29 +63,29 @@ class TDEEViewController: UIViewController {
         }
         // 判斷每週運動幾天
         exerciseDay = Int(exerciseDaySlider.value)
-        // 判斷是否為體力勞動工作
-        isLabor = isLaborSwitch.isOn
         
-        // 依不同選項選擇要顯示的TDEEInfo，並呼叫updateTDEE去顯示結果
-        if isLabor {
-            updateTDEE(tdee: tdeeInfo[4])
+        // 依不同選項選擇要顯示的TDEEInfo，並呼叫showTDEE去顯示結果
+        if isLaborSwitch.isOn {
+            showTDEE(tdee: tdeeInfo[4])
         } else {
             switch exerciseDay {
             case 0:
-                updateTDEE(tdee: tdeeInfo[0])
+                showTDEE(tdee: tdeeInfo[0])
             case 1...3:
-                updateTDEE(tdee: tdeeInfo[1])
+                showTDEE(tdee: tdeeInfo[1])
             case 4...5:
-                updateTDEE(tdee: tdeeInfo[2])
+                showTDEE(tdee: tdeeInfo[2])
             case 6...7:
-                updateTDEE(tdee: tdeeInfo[3])
+                showTDEE(tdee: tdeeInfo[3])
             default:
                 break
             }
         }
     }
     
-    func updateTDEE(tdee: TDEEInfo) {
+    func showTDEE(tdee: TDEEInfo) {
+        // 依使用者所選，顯示對應的 TDEEInfo
+        
         var tdeeResult = Double()
         tdeeResult = calculateTDEE(bmrText: self.bmrText, bmrMultiplier: tdee.multiplier, loseWeight: isLoseWeight)
         

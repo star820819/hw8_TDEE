@@ -26,13 +26,11 @@ class BMRViewController: UIViewController {
         let menu = UIMenu(children: [
             UIAction(title: "男性", image: UIImage(systemName: "figure.teen"), handler: { _ in
                 self.gender = .male
-                print(self.gender)
-                self.updateBMR()
+                self.updateUI()
             }),
             UIAction(title: "女性", image: UIImage(systemName: "figure.stand.dress"), handler: { _ in
                 self.gender = .female
-                print(self.gender)
-                self.updateBMR()
+                self.updateUI()
             })
         ])
         genderMenuButton.menu = menu
@@ -47,8 +45,8 @@ class BMRViewController: UIViewController {
     @IBAction func stepperChanged(_ sender: Any) {
         // 將 stepper 的值顯示在 ageTextField 上
         ageTextField.text = String(Int(ageStepper.value))
-        // 因為是利用程式更改 ageTextField 的值，不會觸發IBAction inputDidChanged，所以呼叫updateBMR
-        updateBMR()
+        // 因為是利用程式更改 ageTextField 的值，不會觸發IBAction inputDidChanged，所以呼叫 updateUI
+        updateUI()
     }
 
     @IBAction func ageTextFieldChanged(_ sender: Any) {
@@ -56,12 +54,11 @@ class BMRViewController: UIViewController {
         if let ageText = ageTextField.text, let age = Double(ageText) {
             ageStepper.value = age
         }
-        updateBMR()
     }
     
     @IBAction func inputDidChanged(_ sender: Any) {
-        // 當使用者的輸入資訊更改，呼叫 updateBMR
-        updateBMR()
+        // 當使用者的輸入資訊更改，呼叫 updateUI
+        updateUI()
     }
     
     override func shouldPerformSegue(withIdentifier identifier: String, sender: Any?) -> Bool {
@@ -82,13 +79,15 @@ class BMRViewController: UIViewController {
         return controller
     }
     
-    func updateBMR() {
+    func updateUI() {
+        // input都輸入正確，就呼叫calculateBMR做計算，並顯示計算公式跟結果
+        
         // 確認checkInput是否有回傳PersonInfo物件，若為nil代表input不對，無法計算BMR
         guard let personInfo = checkInput() else {
             bmrResultLabel.text = ""
             return
         }
-        
+        // 有 personInfo才執行下面程式
         let bmr = calculateBMR(person: personInfo)
         bmrResultLabel.text = String(format: "%.0f", bmr)
         infoLabel.text = "計算公式 (Mifflin-St Jeor formula) 9.99 × 體重 + 6.25 × 身高 - 4.92 × 年齡 +(166 × 性別 (男 1、女 0) - 161) = 基礎代謝率 (BMR)"
@@ -96,7 +95,7 @@ class BMRViewController: UIViewController {
     }
     
     func checkInput() -> PersonInfo? {
-        // 檢查年齡、身高、體重是否都能成功轉成Int跟Double，且年齡是否在 1~100之間、身高體重是否為正數，並將輸入錯誤的訊息存在errorMsg，輸入都正確的話回傳轉換後的資訊，不正確的話回傳nil
+        // 檢查年齡、身高、體重是否都能成功轉成Int跟Double，且年齡是否在 1~100之間、身高體重是否為正數，並將輸入錯誤的訊息依序顯示，輸入都正確的話回傳轉換後的資訊，不正確的話回傳nil
         var errorMsg: [String] = []
         
         var age: Int?
